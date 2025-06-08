@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phantom - Import Wallet</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #1a1a1a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .import-container {
+      background-color: #141414;
+      padding: 30px 20px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      position: relative;
+    }
+    .top-icons {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .top-icons span {
+      color: #888;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .logo {
+      font-size: 64px;
+      margin: 40px 0 20px;
+    }
+    h2 {
+      margin: 10px 0;
+      font-size: 24px;
+    }
+    p {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-grid input {
+      background-color: #242424;
+      border: 1px solid #333;
+      padding: 12px 8px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .recovery-toggle {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .import-button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #333;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .import-button:hover {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="import-container">
+    <div class="top-icons">
+      <a href="index.html" style="color: black;"><span>&#10005;</span></a>
+      <span>?</span>
+    </div>
+    <div class="logo"><img src="media/download.png" height="76"></div>
+    <h2>Import wallet</h2>
+    <p>Import an existing wallet with your 12 or 24-word recovery phrase.</p>
+    <div class="input-grid" id="input-grid">
+      <!-- Initial 12 inputs -->
+      <script>
+        for (let i = 1; i <= 12; i++) {
+          document.write(`<input type="text" placeholder="${i}." />`);
+        }
+      </script>
+    </div>
+    <div class="recovery-toggle" onclick="expandInputs(this)">I have a 24-word recovery phrase</div>
+    <button class="import-button">Import Wallet</button>
+  </div>
+
+  <script>
+    function expandInputs(el) {
+      const grid = document.getElementById('input-grid');
+      if (el.dataset.expanded) return;
+      for (let i = 13; i <= 24; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = `${i}.`;
+        grid.appendChild(input);
+      }
+      el.dataset.expanded = 'true';
+      el.style.color = '#555';
+    }
+  </script>
+</body>
+</html>

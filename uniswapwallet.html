@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import Secret Phrase</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #fff;
+      color: #333;
+    }
+    .container {
+      max-width: 100%;
+      width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .back-arrow {
+      font-size: 24px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+    }
+    h2 {
+      margin-top: 60px;
+      font-size: 20px;
+    }
+    p {
+      color: #666;
+      font-size: 14px;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .input-grid input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: left;
+    }
+    .dropdown {
+      margin: 10px 0;
+      font-size: 14px;
+      color: #777;
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-options {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      z-index: 10;
+    }
+    .dropdown-options div {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .dropdown-options div:hover {
+      background-color: #f0f0f0;
+    }
+    .continue-btn {
+      background-color: #f9a8e6;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="back-arrow" onclick="goBack()">←</div>
+  <div class="container">
+    <h2>Import with your recovery phrase</h2>
+    <p>Type or paste your 12-word recovery phrase</p>
+
+    <div class="input-grid" id="inputGrid">
+      <!-- Dynamic inputs -->
+    </div>
+
+    <div class="dropdown" onclick="toggleDropdown()">
+      My recovery phrase is longer &#9662;
+      <div class="dropdown-options" id="dropdownOptions">
+        <div onclick="setPhraseLength(15)">15 words</div>
+        <div onclick="setPhraseLength(18)">18 words</div>
+        <div onclick="setPhraseLength(21)">21 words</div>
+        <div onclick="setPhraseLength(24)">24 words</div>
+      </div>
+    </div>
+
+    <button class="continue-btn">Continue</button>
+  </div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdownOptions');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function setPhraseLength(count) {
+      const grid = document.getElementById('inputGrid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = i;
+        grid.appendChild(input);
+      }
+      document.getElementById('dropdownOptions').style.display = 'none';
+    }
+
+    // Default to 12 inputs
+    setPhraseLength(12);
+  </script>
+</body>
+</html>

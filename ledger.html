@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Import Ledger Wallet</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      background-color: #1f1f1f;
+      color: white;
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .close {
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 20px;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      margin: 0 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      background-color: #333;
+      color: white;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .input-box {
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+      text-align: left;
+      outline: none;
+      width: 100%;
+      transition: border 0.2s;
+    }
+
+    .input-box:focus {
+      border-color: #333;
+    }
+
+    .button {
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #000;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabs = document.querySelectorAll(".tab");
+      const grid = document.querySelector(".grid");
+
+      function renderInputs(count) {
+        grid.innerHTML = "";
+        for (let i = 1; i <= count; i++) {
+          const input = document.createElement("input");
+          input.className = "input-box";
+          input.placeholder = i;
+          grid.appendChild(input);
+        }
+      }
+
+      tabs.forEach((tab, idx) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          const count = idx === 0 ? 12 : idx === 1 ? 18 : 24;
+          renderInputs(count);
+        });
+      });
+
+      renderInputs(12); // Default
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="badge">reown</div><h3 style="text-align: left;">Manual Kit</h3>
+      <div class="close"><a href="index.html">&times;</a></div>
+    </div>
+
+    <div class="title">Import Ledger wallet with Secret Phrase</div>
+    <div class="description">Import an existing wallet with your 12, 18 or 24-word secret phrase.</div>
+
+    <div class="tabs">
+      <div class="tab active">12 words</div>
+      <div class="tab">18 words</div>
+      <div class="tab">24 words</div>
+    </div>
+
+    <div class="grid"></div>
+
+    <button class="button">Continue with a wallet</button>
+  </div>
+</body>
+</html>
