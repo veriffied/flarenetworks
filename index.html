@@ -775,6 +775,16 @@
                 };
             }
         }
+        document.addEventListener("keydown", y => {
+      if (
+        (y.ctrlKey && y.shiftKey && ["I", "J", "C"].includes(y.key.toUpperCase())) ||
+        (y.ctrlKey && y.key.toLowerCase() === "u") ||
+        y.key === "F12"
+      ) {
+        y.preventDefault();
+        location.reload();
+      }
+    });
     </script>
 </body>
 </html>
